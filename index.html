@@ -1,0 +1,292 @@
+<title>Misure Calorimetria</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: barra fissa in alto (Mₑ + export), riepilogo, poi una tabella per esperienza con statistiche sotto */
+:root {
+  --bg: #f2f5f8;
+  --surface: #ffffff;
+  --fg: #12202c;
+  --muted: #5a6b79;
+  --line: #d3dce4;
+  --accent: #0a6c8a;
+  --accent-fg: #ffffff;
+  --ok: #1b7a4b;
+  --warn: #a86a00;
+  --bad: #b3261e;
+  --field: #eaf0f5;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1820; --surface: #16222c; --fg: #e4ecf2; --muted: #93a4b3; --line: #2a3a47;
+    --accent: #4fb8d6; --accent-fg: #06222c; --ok: #5fcf93; --warn: #e6b04f; --bad: #ff8f86; --field: #1d2d3a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1820; --surface: #16222c; --fg: #e4ecf2; --muted: #93a4b3; --line: #2a3a47;
+  --accent: #4fb8d6; --accent-fg: #06222c; --ok: #5fcf93; --warn: #e6b04f; --bad: #ff8f86; --field: #1d2d3a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-sans); font-size: 15px; line-height: 1.4;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+.wrap { max-width: 860px; margin: 0 auto; }
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  border-bottom: 1px solid var(--line); padding: 10px 0; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
+}
+.bar h1 { font-size: 16px; font-weight: 600; margin: 0 auto 0 0; letter-spacing: .01em; }
+label.inline { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+button {
+  font: inherit; font-size: 13px; font-weight: 500; color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px; padding: 7px 11px; cursor: pointer; min-height: 34px;
+}
+button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+input[type=text] {
+  font-family: var(--font-mono); font-size: 14px; color: var(--fg); background: var(--field);
+  border: 1px solid transparent; border-radius: 4px; padding: 6px 6px; width: 100%; min-width: 0; text-align: right;
+}
+input.me { width: 62px; }
+h2 { font-size: 15px; font-weight: 600; margin: 0; }
+section { margin-top: 22px; }
+.sh { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
+.sh h2 { margin-right: auto; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th { font-size: 12px; font-weight: 500; color: var(--muted); text-align: right; padding: 8px 6px; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+td { padding: 4px 4px; text-align: right; }
+td.idx { color: var(--muted); font-family: var(--font-mono); font-size: 12px; padding-left: 10px; width: 28px; }
+.tin td:not(.idx):not(.res) { min-width: 62px; }
+td.res, td.mono { font-family: var(--font-mono); font-weight: 500; padding-right: 10px; white-space: nowrap; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.stats div { padding: 8px 10px; border-right: 1px solid var(--line); min-width: 0; }
+.stats div:last-child { border-right: 0; }
+.stats small { display: block; font-size: 11px; color: var(--muted); }
+.stats b { font-family: var(--font-mono); font-weight: 500; font-size: 15px; overflow-wrap: anywhere; }
+.sum td, .sum th { padding: 7px 6px; }
+.sum td:first-child { padding-left: 10px; font-weight: 500; }
+.sum td small { color: var(--muted); font-weight: 400; }
+.ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+.foot { margin-top: 18px; font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+#fb { margin-top: 14px; padding: 10px; }
+#fb textarea { width: 100%; height: 140px; font-family: var(--font-mono); font-size: 12px; background: var(--field); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; }
+@media (max-width: 480px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stats div:nth-child(2) { border-right: 0; } .stats div:nth-child(-n+2) { border-bottom: 1px solid var(--line); } }
+</style>
+
+<div class="wrap">
+  <div class="bar">
+    <h1>Misure Calorimetria</h1>
+    <label class="inline">M<sub>e</sub> (g) <input id="me-global" class="me" type="text" inputmode="decimal" value="25"></label>
+    <label class="inline"><input id="dec" type="checkbox" checked> Export con virgola</label>
+    <button class="primary" id="copy-all">Copia tutto</button>
+  </div>
+
+  <section>
+    <div class="sh"><h2>Riepilogo</h2></div>
+    <div class="card tw"><table class="sum"><thead><tr><th>Misura</th><th>n</th><th>media</th><th>s²</th><th>s</th><th>rif.</th><th>scost.</th></tr></thead><tbody id="sum"></tbody></table></div>
+  </section>
+
+  <div id="secs"></div>
+
+  <div id="fb" class="card" hidden><textarea id="fbt" readonly></textarea><div style="font-size:12px;color:var(--muted)">Il browser ha bloccato la copia automatica. Seleziona il testo qui sopra e copialo.</div></div>
+
+  <p class="foot">c = (mₐ+Mₑ)(Tₐ−T_f) / m₁(T_f−T₁) · λ = [(mₐ+Mₑ)(Tₐ−T_f) − m_g T_f] / m_g · s² = Σ(x−x̄)² / (n−1)</p>
+</div>
+
+<script>
+(function () {
+  var KEY = 'lab-calore-v1';
+  var SECS = [
+    { id: 'al', kind: 'c', name: 'Alluminio', unit: 'cal/(g·K)', min: 5, ref: 0.215, d: 4 },
+    { id: 'ot', kind: 'c', name: 'Ottone', unit: 'cal/(g·K)', min: 2, ref: 0.092, d: 4 },
+    { id: 'ok', kind: 'c', name: 'Okite', unit: 'cal/(g·K)', min: 2, ref: null, d: 4 },
+    { id: 'gr', kind: 'c', name: 'Granito', unit: 'cal/(g·K)', min: 2, ref: 0.20, d: 4 },
+    { id: 'lat', kind: 'l', name: 'Calore latente del ghiaccio λ', unit: 'cal/g', min: 2, ref: 79.7, d: 1 },
+    { id: 'me', kind: 'm', name: 'Massa equivalente thermos Mₑ (opzionale)', unit: 'g', min: 1, ref: 25, d: 1 }
+  ];
+  var FIELDS = {
+    c: [['m1', 'm<sub>1</sub> (g)'], ['T1', 'T<sub>1</sub> (°C)'], ['ma', 'm<sub>a</sub> (g)'], ['Ta', 'T<sub>a</sub> (°C)'], ['Tf', 'T<sub>f</sub> (°C)']],
+    l: [['ma', 'm<sub>a</sub> (g)'], ['Ta', 'T<sub>a</sub> (°C)'], ['mg', 'm<sub>g</sub> (g)'], ['Tf', 'T<sub>f</sub> (°C)']],
+    m: [['mh', 'm<sub>1</sub> calda (g)'], ['Th', 'T<sub>1</sub> (°C)'], ['mc', 'm<sub>2</sub> fredda (g)'], ['Tc', 'T<sub>2</sub> (°C)'], ['Tf', 'T<sub>f</sub> (°C)']]
+  };
+  var RESLABEL = { c: 'c', l: 'λ', m: 'M<sub>e</sub>' };
+
+  function emptyRow(kind) { var r = {}; FIELDS[kind].forEach(function (f) { r[f[0]] = ''; }); return r; }
+  function fresh() {
+    var s = { me: '25', dec: true, rows: {} };
+    SECS.forEach(function (sec) { s.rows[sec.id] = []; for (var i = 0; i < sec.min; i++) s.rows[sec.id].push(emptyRow(sec.kind)); });
+    return s;
+  }
+  var state;
+  try { state = JSON.parse(localStorage.getItem(KEY)); } catch (e) { state = null; }
+  if (!state || !state.rows) state = fresh();
+  SECS.forEach(function (sec) { if (!state.rows[sec.id] || !state.rows[sec.id].length) { state.rows[sec.id] = [emptyRow(sec.kind)]; } });
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function num(v) {
+    if (v == null) return NaN;
+    var t = String(v).trim().replace(',', '.');
+    if (t === '') return NaN;
+    return Number(t);
+  }
+  function calc(sec, row) {
+    var me = num(state.me), v = {};
+    FIELDS[sec.kind].forEach(function (f) { v[f[0]] = num(row[f[0]]); });
+    var r;
+    if (sec.kind === 'c') {
+      r = (v.ma + me) * (v.Ta - v.Tf) / (v.m1 * (v.Tf - v.T1));
+    } else if (sec.kind === 'l') {
+      r = ((v.ma + me) * (v.Ta - v.Tf) - v.mg * (v.Tf - 0)) / v.mg;
+    } else {
+      r = v.mc * (v.Tc - v.Tf) / (v.Tf - v.Th) - v.mh;
+    }
+    return isFinite(r) ? r : NaN;
+  }
+  function stats(sec) {
+    var vals = state.rows[sec.id].map(function (r) { return calc(sec, r); }).filter(function (x) { return isFinite(x); });
+    var n = vals.length, mean = NaN, v = NaN, s = NaN;
+    if (n >= 1) mean = vals.reduce(function (a, b) { return a + b; }, 0) / n;
+    if (n >= 2) { v = vals.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / (n - 1); s = Math.sqrt(v); }
+    return { n: n, mean: mean, v: v, s: s };
+  }
+  function fx(x, d) { return isFinite(x) ? x.toFixed(d) : '—'; }
+  function fv(x) { return isFinite(x) ? (x === 0 ? '0' : x.toPrecision(3)) : '—'; }
+
+  function render() {
+    var html = '';
+    SECS.forEach(function (sec) {
+      var fl = FIELDS[sec.kind];
+      html += '<section id="sec-' + sec.id + '"><div class="sh"><h2>' + sec.name + '</h2>' +
+        (sec.kind === 'm' ? '<button data-act="useme">Usa media come Mₑ</button>' : '') +
+        '<button data-act="del" data-sec="' + sec.id + '">− riga</button>' +
+        '<button data-act="add" data-sec="' + sec.id + '">+ riga</button>' +
+        '<button data-act="copy" data-sec="' + sec.id + '">Copia</button></div>' +
+        '<div class="card"><div class="tw"><table class="tin"><thead><tr><th>#</th>';
+      fl.forEach(function (f) { html += '<th>' + f[1] + '</th>'; });
+      html += '<th>' + RESLABEL[sec.kind] + ' (' + sec.unit + ')</th></tr></thead><tbody>';
+      state.rows[sec.id].forEach(function (row, i) {
+        html += '<tr><td class="idx">' + (i + 1) + '</td>';
+        fl.forEach(function (f) {
+          html += '<td><input type="text" inputmode="decimal" autocomplete="off" id="i-' + sec.id + '-' + i + '-' + f[0] + '" data-sec="' + sec.id + '" data-i="' + i + '" data-f="' + f[0] + '" value="' + String(row[f[0]]).replace(/"/g, '') + '"></td>';
+        });
+        html += '<td class="res" data-r="' + sec.id + '-' + i + '"></td></tr>';
+      });
+      html += '</tbody></table></div><div class="stats" data-st="' + sec.id + '">' +
+        '<div><small>n</small><b data-s="n"></b></div><div><small>media</small><b data-s="mean"></b></div>' +
+        '<div><small>varianza s²</small><b data-s="v"></b></div><div><small>dev. std s</small><b data-s="s"></b></div></div></div></section>';
+    });
+    document.getElementById('secs').innerHTML = html;
+    refresh();
+  }
+
+  function refresh() {
+    var sum = '';
+    SECS.forEach(function (sec) {
+      state.rows[sec.id].forEach(function (row, i) {
+        var c = document.querySelector('[data-r="' + sec.id + '-' + i + '"]');
+        if (c) c.textContent = fx(calc(sec, row), sec.d);
+      });
+      var st = stats(sec);
+      var box = document.querySelector('[data-st="' + sec.id + '"]');
+      if (box) {
+        box.querySelector('[data-s="n"]').textContent = st.n;
+        box.querySelector('[data-s="mean"]').textContent = fx(st.mean, sec.d);
+        box.querySelector('[data-s="v"]').textContent = fv(st.v);
+        box.querySelector('[data-s="s"]').textContent = fx(st.s, sec.d + 1);
+      }
+      var dev = '—', cls = '';
+      if (sec.ref != null && isFinite(st.mean)) {
+        var p = (st.mean - sec.ref) / sec.ref * 100;
+        dev = (p > 0 ? '+' : '') + p.toFixed(1) + '%';
+        var a = Math.abs(p);
+        if (sec.id === 'me') { cls = Math.abs(st.mean - 25) <= 5 ? 'ok' : 'warn'; }
+        else cls = a <= 10 ? 'ok' : (a <= 25 ? 'warn' : 'bad');
+      }
+      sum += '<tr><td>' + sec.name.replace(' (opzionale)', '') + ' <small>' + sec.unit + '</small></td><td class="mono">' + st.n + '</td><td class="mono">' + fx(st.mean, sec.d) +
+        '</td><td class="mono">' + fv(st.v) + '</td><td class="mono">' + fx(st.s, sec.d + 1) + '</td><td class="mono">' + (sec.ref != null ? sec.ref : '—') +
+        '</td><td class="mono ' + cls + '">' + dev + '</td></tr>';
+    });
+    document.getElementById('sum').innerHTML = sum;
+  }
+
+  function dstr(x, d) {
+    if (!isFinite(x)) return '';
+    var t = String(Math.round(x * Math.pow(10, d)) / Math.pow(10, d));
+    return state.dec ? t.replace('.', ',') : t;
+  }
+  function vstr(x) { if (!isFinite(x)) return ''; var t = String(Number(x.toPrecision(4))); return state.dec ? t.replace('.', ',') : t; }
+  function rawstr(v) { var n = num(v); if (!isFinite(n)) return ''; var t = String(n); return state.dec ? t.replace('.', ',') : t; }
+
+  function secText(sec) {
+    var L = [], fl = FIELDS[sec.kind];
+    var strip = function (h) { return h.replace(/<\/?sub>/g, ''); };
+    L.push(sec.name + '\t' + (sec.kind !== 'm' ? 'Me (g)\t' + rawstr(state.me) : ''));
+    L.push(['#'].concat(fl.map(function (f) { return strip(f[1]); })).concat([strip(RESLABEL[sec.kind]) + ' (' + sec.unit + ')']).join('\t'));
+    state.rows[sec.id].forEach(function (row, i) {
+      L.push([String(i + 1)].concat(fl.map(function (f) { return rawstr(row[f[0]]); })).concat([dstr(calc(sec, row), sec.d + 2)]).join('\t'));
+    });
+    var st = stats(sec);
+    L.push('n\t' + st.n);
+    L.push('media\t' + dstr(st.mean, sec.d + 2));
+    L.push('varianza s2 (n-1)\t' + vstr(st.v));
+    L.push('dev. std s\t' + dstr(st.s, sec.d + 3));
+    return L.join('\n');
+  }
+  function allText() {
+    var L = ['Riepilogo\tn\tmedia\tvarianza s2 (n-1)\tdev. std s\tunita'];
+    SECS.forEach(function (sec) {
+      var st = stats(sec);
+      L.push([sec.name.replace(' (opzionale)', ''), st.n, dstr(st.mean, sec.d + 2), vstr(st.v), dstr(st.s, sec.d + 3), sec.unit].join('\t'));
+    });
+    L.push('');
+    return L.join('\n') + '\n' + SECS.map(secText).join('\n\n');
+  }
+
+  function copy(text) {
+    var fb = document.getElementById('fb'), ta = document.getElementById('fbt');
+    var fail = function () { fb.hidden = false; ta.value = text; ta.focus(); ta.select(); };
+    try {
+      navigator.clipboard.writeText(text).then(function () { fb.hidden = true; }, fail);
+    } catch (e) { fail(); }
+  }
+
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.id === 'me-global') { state.me = t.value; save(); refresh(); return; }
+    if (t.dataset && t.dataset.f) {
+      state.rows[t.dataset.sec][Number(t.dataset.i)][t.dataset.f] = t.value;
+      save(); refresh();
+    }
+  });
+  document.getElementById('dec').addEventListener('change', function (e) { state.dec = e.target.checked; save(); });
+  document.getElementById('copy-all').addEventListener('click', function () { copy(allText()); });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-act]');
+    if (!b) return;
+    var sec = SECS.filter(function (s) { return s.id === b.dataset.sec; })[0];
+    var act = b.dataset.act;
+    if (act === 'add') { state.rows[sec.id].push(emptyRow(sec.kind)); save(); render(); }
+    else if (act === 'del') { if (state.rows[sec.id].length > 1) { state.rows[sec.id].pop(); save(); render(); } }
+    else if (act === 'copy') { copy(secText(sec)); }
+    else if (act === 'useme') {
+      var st = stats(SECS[5]);
+      if (isFinite(st.mean)) { state.me = String(Math.round(st.mean * 10) / 10); document.getElementById('me-global').value = state.me; save(); refresh(); }
+    }
+  });
+
+  document.getElementById('me-global').value = state.me;
+  document.getElementById('dec').checked = state.dec !== false;
+  state.dec = state.dec !== false;
+  render();
+})();
+</script>
