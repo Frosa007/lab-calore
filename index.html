@@ -1,292 +1,260 @@
-<title>Misure Calorimetria</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quaderno di calorimetria</title>
 <style>
-/* Layout: barra fissa in alto (Mₑ + export), riepilogo, poi una tabella per esperienza con statistiche sotto */
-:root {
-  --bg: #f2f5f8;
-  --surface: #ffffff;
-  --fg: #12202c;
-  --muted: #5a6b79;
-  --line: #d3dce4;
-  --accent: #0a6c8a;
-  --accent-fg: #ffffff;
-  --ok: #1b7a4b;
-  --warn: #a86a00;
-  --bad: #b3261e;
-  --field: #eaf0f5;
-  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f1820; --surface: #16222c; --fg: #e4ecf2; --muted: #93a4b3; --line: #2a3a47;
-    --accent: #4fb8d6; --accent-fg: #06222c; --ok: #5fcf93; --warn: #e6b04f; --bad: #ff8f86; --field: #1d2d3a;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0f1820; --surface: #16222c; --fg: #e4ecf2; --muted: #93a4b3; --line: #2a3a47;
-  --accent: #4fb8d6; --accent-fg: #06222c; --ok: #5fcf93; --warn: #e6b04f; --bad: #ff8f86; --field: #1d2d3a;
-  color-scheme: dark;
-}
-* { box-sizing: border-box; }
-body {
-  background: var(--bg); color: var(--fg); font-family: var(--font-sans); font-size: 15px; line-height: 1.4;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 0 48px;
-}
-.wrap { max-width: 860px; margin: 0 auto; }
-.bar {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
-  border-bottom: 1px solid var(--line); padding: 10px 0; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
-}
-.bar h1 { font-size: 16px; font-weight: 600; margin: 0 auto 0 0; letter-spacing: .01em; }
-label.inline { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
-button {
-  font: inherit; font-size: 13px; font-weight: 500; color: var(--fg); background: var(--surface);
-  border: 1px solid var(--line); border-radius: 6px; padding: 7px 11px; cursor: pointer; min-height: 34px;
-}
-button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
-button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-input[type=text] {
-  font-family: var(--font-mono); font-size: 14px; color: var(--fg); background: var(--field);
-  border: 1px solid transparent; border-radius: 4px; padding: 6px 6px; width: 100%; min-width: 0; text-align: right;
-}
-input.me { width: 62px; }
-h2 { font-size: 15px; font-weight: 600; margin: 0; }
-section { margin-top: 22px; }
-.sh { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
-.sh h2 { margin-right: auto; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
-.tw { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-th { font-size: 12px; font-weight: 500; color: var(--muted); text-align: right; padding: 8px 6px; white-space: nowrap; border-bottom: 1px solid var(--line); }
-th:first-child, td:first-child { text-align: left; }
-td { padding: 4px 4px; text-align: right; }
-td.idx { color: var(--muted); font-family: var(--font-mono); font-size: 12px; padding-left: 10px; width: 28px; }
-.tin td:not(.idx):not(.res) { min-width: 62px; }
-td.res, td.mono { font-family: var(--font-mono); font-weight: 500; padding-right: 10px; white-space: nowrap; }
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
-.stats div { padding: 8px 10px; border-right: 1px solid var(--line); min-width: 0; }
-.stats div:last-child { border-right: 0; }
-.stats small { display: block; font-size: 11px; color: var(--muted); }
-.stats b { font-family: var(--font-mono); font-weight: 500; font-size: 15px; overflow-wrap: anywhere; }
-.sum td, .sum th { padding: 7px 6px; }
-.sum td:first-child { padding-left: 10px; font-weight: 500; }
-.sum td small { color: var(--muted); font-weight: 400; }
-.ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
-.foot { margin-top: 18px; font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
-#fb { margin-top: 14px; padding: 10px; }
-#fb textarea { width: 100%; height: 140px; font-family: var(--font-mono); font-size: 12px; background: var(--field); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; }
-@media (max-width: 480px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stats div:nth-child(2) { border-right: 0; } .stats div:nth-child(-n+2) { border-bottom: 1px solid var(--line); } }
+:root{--bg:#f3f5f4;--card:#fff;--ink:#16202b;--mut:#566573;--line:#d3dbd7;--cold:#2467b3;--hot:#c4501b;--ok:#1f7a49;--warn:#9a6700;--bad:#b42323}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#e6ecef;--mut:#9aa8b3;--line:#2b3946;--cold:#6ea8f0;--hot:#f08a5a;--ok:#5cc58a;--warn:#e0b04a;--bad:#f27474}}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}
+header{padding:20px 16px 0;max-width:1150px;margin:auto}
+h1{font:700 1.9rem/1.1 Georgia,"Iowan Old Style",serif;margin:0 0 4px}
+h1::after{content:"";display:block;height:4px;width:120px;margin-top:8px;border-radius:2px;background:linear-gradient(90deg,var(--cold),var(--hot))}
+h2{font:700 1.2rem Georgia,serif;margin:0 0 8px}
+p.sub{color:var(--mut);margin:6px 0 0}
+main{max-width:1150px;margin:auto;padding:12px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0}
+.set{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+label{font-size:.85rem;color:var(--mut);display:block}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+input[type=checkbox]{width:auto}
+:focus-visible{outline:3px solid var(--cold);outline-offset:1px}
+button{background:var(--ink);color:var(--bg);border:0;border-radius:6px;padding:7px 12px;cursor:pointer}
+button.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.x{background:transparent;color:var(--mut);padding:4px 8px;font-size:.85rem}
+nav{display:flex;gap:2px;flex-wrap:wrap;margin-top:14px;border-bottom:2px solid var(--line)}
+[role=tab]{background:none;color:var(--mut);border-radius:6px 6px 0 0;padding:9px 12px;border-bottom:3px solid transparent;margin-bottom:-2px}
+[role=tab][aria-selected=true]{color:var(--ink);border-bottom-color:var(--hot);font-weight:600}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:4px 6px;text-align:right;white-space:nowrap}
+th{font-size:.8rem;color:var(--mut);font-weight:600;vertical-align:bottom}
+td input{min-width:68px;text-align:right}
+td input.ora{min-width:62px;width:62px}td input.nota{min-width:150px;text-align:left}
+td.out{font-weight:700}
+td.msg{text-align:left;white-space:normal;font-size:.82rem;min-width:190px}
+.e{color:var(--bad)}.w{color:var(--warn)}.g{color:var(--ok)}
+tr.outl td.out{background:color-mix(in srgb,var(--warn) 25%,transparent)}
+tr.disc input,tr.disc td.out{text-decoration:line-through;opacity:.55}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.note{font-size:.85rem;color:var(--mut)}
+.formula{font-family:Georgia,serif;font-style:italic;color:var(--mut)}
+svg{width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.two{grid-template-columns:1fr}}
+ul.chk{list-style:none;padding:0;margin:0}ul.chk label{display:flex;gap:8px;color:var(--ink);font-size:.95rem;padding:3px 0}
+.log{font-size:.82rem;color:var(--mut);max-height:240px;overflow:auto;white-space:pre-wrap}
+@media print{nav,.bar,button{display:none}}
 </style>
-
-<div class="wrap">
-  <div class="bar">
-    <h1>Misure Calorimetria</h1>
-    <label class="inline">M<sub>e</sub> (g) <input id="me-global" class="me" type="text" inputmode="decimal" value="25"></label>
-    <label class="inline"><input id="dec" type="checkbox" checked> Export con virgola</label>
-    <button class="primary" id="copy-all">Copia tutto</button>
-  </div>
-
-  <section>
-    <div class="sh"><h2>Riepilogo</h2></div>
-    <div class="card tw"><table class="sum"><thead><tr><th>Misura</th><th>n</th><th>media</th><th>s²</th><th>s</th><th>rif.</th><th>scost.</th></tr></thead><tbody id="sum"></tbody></table></div>
-  </section>
-
-  <div id="secs"></div>
-
-  <div id="fb" class="card" hidden><textarea id="fbt" readonly></textarea><div style="font-size:12px;color:var(--muted)">Il browser ha bloccato la copia automatica. Seleziona il testo qui sopra e copialo.</div></div>
-
-  <p class="foot">c = (mₐ+Mₑ)(Tₐ−T_f) / m₁(T_f−T₁) · λ = [(mₐ+Mₑ)(Tₐ−T_f) − m_g T_f] / m_g · s² = Σ(x−x̄)² / (n−1)</p>
-</div>
-
+</head>
+<body>
+<header>
+<h1>Quaderno di calorimetria</h1>
+<p class="sub">Calore specifico, calore latente di fusione del ghiaccio, massa equivalente del thermos. Dati grezzi tali e quali, nessuna cancellazione, incertezze propagate. Salvataggio automatico nel browser.</p>
+<nav role="tablist" id="tabs"></nav>
+</header>
+<main>
+<section class="card"><h2>Parametri</h2><div class="set" id="setgrid"></div>
+<p class="note">σ lettura: incertezza di ogni lettura di T (risoluzione 0,1 °C ⇒ da 0,03 a 0,1 °C) e di ogni pesata. σ offset: incertezza di calibrazione fra i due termometri; si cancella in Tₐ−T_f se leggi entrambe con lo stesso termometro, quindi pesa solo su T₁ (e T₂, T_g). Offset e Mₑ sono sistematici: non diminuiscono con la media e compaiono separati. c_a = 1 cal/(g·K) come da dispensa; 1 cal = 4,186 J.</p></section>
+<div id="view"></div>
+</main>
 <script>
-(function () {
-  var KEY = 'lab-calore-v1';
-  var SECS = [
-    { id: 'al', kind: 'c', name: 'Alluminio', unit: 'cal/(g·K)', min: 5, ref: 0.215, d: 4 },
-    { id: 'ot', kind: 'c', name: 'Ottone', unit: 'cal/(g·K)', min: 2, ref: 0.092, d: 4 },
-    { id: 'ok', kind: 'c', name: 'Okite', unit: 'cal/(g·K)', min: 2, ref: null, d: 4 },
-    { id: 'gr', kind: 'c', name: 'Granito', unit: 'cal/(g·K)', min: 2, ref: 0.20, d: 4 },
-    { id: 'lat', kind: 'l', name: 'Calore latente del ghiaccio λ', unit: 'cal/g', min: 2, ref: 79.7, d: 1 },
-    { id: 'me', kind: 'm', name: 'Massa equivalente thermos Mₑ (opzionale)', unit: 'g', min: 1, ref: 25, d: 1 }
-  ];
-  var FIELDS = {
-    c: [['m1', 'm<sub>1</sub> (g)'], ['T1', 'T<sub>1</sub> (°C)'], ['ma', 'm<sub>a</sub> (g)'], ['Ta', 'T<sub>a</sub> (°C)'], ['Tf', 'T<sub>f</sub> (°C)']],
-    l: [['ma', 'm<sub>a</sub> (g)'], ['Ta', 'T<sub>a</sub> (°C)'], ['mg', 'm<sub>g</sub> (g)'], ['Tf', 'T<sub>f</sub> (°C)']],
-    m: [['mh', 'm<sub>1</sub> calda (g)'], ['Th', 'T<sub>1</sub> (°C)'], ['mc', 'm<sub>2</sub> fredda (g)'], ['Tc', 'T<sub>2</sub> (°C)'], ['Tf', 'T<sub>f</sub> (°C)']]
-  };
-  var RESLABEL = { c: 'c', l: 'λ', m: 'M<sub>e</sub>' };
+const $=s=>document.querySelector(s);
+const P=v=>{const x=parseFloat(String(v??'').replace(',','.'));return isNaN(x)?null:x};
+const KEY='lab-calore-v3',CAL=4.186;
+const GR={Al:{t:'Alluminio',k:'spec'},Ot:{t:'Ottone',k:'spec'},Ok:{t:'Okite',k:'spec'},Gr:{t:'Granito',k:'spec'},L:{t:'Ghiaccio (calore latente)',k:'lat'},M:{t:'Massa equivalente Mₑ',k:'me'}};
+const FIELDS={
+ spec:[['m1','m₁ (g)'],['ma','mₐ (g)'],['T1','T₁ (°C)'],['Ta','Tₐ (°C)'],['Tf','T_f (°C)']],
+ lat:[['ma','mₐ (g)'],['mg','m_g (g)'],['Ta','Tₐ (°C)'],['Tf','T_f (°C)']],
+ me:[['m1','m₁ (g)'],['m2','m₂ (g)'],['T1','T₁ (°C)'],['T2','T₂ (°C)'],['Tf','T_f (°C)']]};
+const def=()=>({set:{Me:25,sMe:5,sT:.1,sOff:.1,sm:.1,Tamb:22,comma:true,J:false},lb:{titolo:'Calore specifico e calore latente di fusione del ghiaccio'},
+ rows:{Al:[{}],Ot:[{}],Ok:[{}],Gr:[{}],L:[{}],M:[{}]},ref:{Al:.215,Ot:.092,Ok:'',Gr:.19,L:79.7},tt:{text:'',tmix:'',t0:''},tab:'LB',log:[]});
+let S=def();
+try{const o=JSON.parse(localStorage.getItem(KEY)||'{}');for(const k in o)S[k]=(o[k]&&typeof o[k]==='object'&&!Array.isArray(o[k]))?Object.assign(S[k]||{},o[k]):o[k]}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const now=()=>new Date().toLocaleString('it-IT'),hm=()=>new Date().toTimeString().slice(0,5);
+const log=t=>S.log.push(now()+' – '+t);
+const K=()=>S.set.J?CAL:1,uc=()=>S.set.J?'J/(g·K)':'cal/(g·K)',ul=()=>S.set.J?'J/g':'cal/g';
+const fmt=(x,d=3)=>{if(x==null||!isFinite(x))return'–';const s=x.toFixed(d);return S.set.comma?s.replace('.',','):s};
+const raw=v=>String(v??'').replace(/[.,]/,S.set.comma?',':'.');
 
-  function emptyRow(kind) { var r = {}; FIELDS[kind].forEach(function (f) { r[f[0]] = ''; }); return r; }
-  function fresh() {
-    var s = { me: '25', dec: true, rows: {} };
-    SECS.forEach(function (sec) { s.rows[sec.id] = []; for (var i = 0; i < sec.min; i++) s.rows[sec.id].push(emptyRow(sec.kind)); });
-    return s;
-  }
-  var state;
-  try { state = JSON.parse(localStorage.getItem(KEY)); } catch (e) { state = null; }
-  if (!state || !state.rows) state = fresh();
-  SECS.forEach(function (sec) { if (!state.rows[sec.id] || !state.rows[sec.id].length) { state.rows[sec.id] = [emptyRow(sec.kind)]; } });
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+/* ---- modelli: f, argomenti, [σ casuale, σ sistematica] per ogni variabile ---- */
+const MODEL={
+ spec:{f:(m1,ma,T1,Ta,Tf,Me)=>(ma+Me)*(Ta-Tf)/(m1*(Tf-T1)),a:r=>[r.m1,r.ma,r.T1,r.Ta,r.Tf,S.set.Me],
+  s:()=>{const{sm,sT,sOff,sMe}=S.set;return[[sm,0],[sm,0],[sT,sOff],[sT,0],[sT,0],[0,sMe]]},K},
+ lat:{f:(ma,mg,Ta,Tf,Me,Tg)=>((ma+Me)*(Ta-Tf)-mg*(Tf-Tg))/mg,a:r=>[r.ma,r.mg,r.Ta,r.Tf,S.set.Me,0],
+  s:()=>{const{sm,sT,sOff,sMe}=S.set;return[[sm,0],[sm,0],[sT,0],[sT,0],[0,sMe],[0,sOff]]},K},
+ me:{f:(m1,m2,T1,T2,Tf)=>m2*(T2-Tf)/(Tf-T1)-m1,a:r=>[r.m1,r.m2,r.T1,r.T2,r.Tf],
+  s:()=>{const{sm,sT,sOff}=S.set;return[[sm,0],[sm,0],[sT,sOff],[sT,sOff],[sT,0]]},K:()=>1}};
+function calc(kind,r){
+ const M=MODEL[kind],F=FIELDS[kind],o={v:null,sR:null,sY:null,msg:[]};
+ const v=F.map(f=>P(r[f[0]]));
+ if(v.some(x=>x==null)){o.msg=[['','Compila tutti i campi']];return o}
+ const x=M.a(Object.fromEntries(F.map((f,i)=>[f[0],v[i]]))),sg=M.s(),m=M.K(),y=M.f(...x)*m;
+ if(!isFinite(y)){o.msg=[['e','Calcolo non valido']];return o}
+ let a=0,b=0;
+ x.forEach((xi,i)=>{const h=Math.max(1e-6,Math.abs(xi)*1e-6),z=x.slice();z[i]=xi+h;const d=Math.abs((M.f(...z)*m-y)/h);a+=(d*sg[i][0])**2;b+=(d*sg[i][1])**2});
+ o.v=y;o.sR=Math.sqrt(a);o.sY=Math.sqrt(b);o.msg=checks(kind,v);return o}
+function checks(kind,v){const o=[],A=S.set.Tamb;
+ if(kind==='spec'){const[m1,ma,T1,Ta,Tf]=v;
+  if(!(Ta<Tf&&Tf<T1))o.push(['e','Serve Tₐ < T_f < T₁']);
+  else{if(Tf-Ta<3)o.push(['w','ΔT acqua '+fmt(Tf-Ta,1)+' °C: piccolo, errore relativo alto']);
+   if(T1-Tf<20)o.push(['w','Blocchetto poco più caldo di T_f']);
+   if(Math.abs(Tf-A)>6)o.push(['w',"T_f lontana dall'ambiente: perdite termiche"])}
+  if(m1<=0||ma<=0)o.push(['e','Masse non valide']);else if(ma<100)o.push(['w','Poca acqua: bulbo e blocchetto immersi?'])}
+ if(kind==='lat'){const[ma,mg,Ta,Tf]=v;
+  if(!(Tf>0&&Tf<Ta))o.push(['e','Serve 0 < T_f < Tₐ']);
+  if(Math.abs(Tf-A)>8)o.push(['w',"T_f lontana dall'ambiente ("+A+' °C)']);
+  if(mg<40||mg>100)o.push(['w','m_g fuori dal range consigliato (~70 g)']);
+  if(Ta>60)o.push(['w','Tₐ alta: più evaporazione e perdite'])}
+ if(kind==='me'){const[,,T1,T2,Tf]=v;
+  if(!(T2<Tf&&Tf<T1))o.push(['e','Serve T₂ < T_f < T₁']);
+  else if(Math.abs(Tf-A)>8)o.push(['w',"T_f lontana dall'ambiente: perdite termiche"])}
+ return o.length?o:[['g','OK']]}
 
-  function num(v) {
-    if (v == null) return NaN;
-    var t = String(v).trim().replace(',', '.');
-    if (t === '') return NaN;
-    return Number(t);
-  }
-  function calc(sec, row) {
-    var me = num(state.me), v = {};
-    FIELDS[sec.kind].forEach(function (f) { v[f[0]] = num(row[f[0]]); });
-    var r;
-    if (sec.kind === 'c') {
-      r = (v.ma + me) * (v.Ta - v.Tf) / (v.m1 * (v.Tf - v.T1));
-    } else if (sec.kind === 'l') {
-      r = ((v.ma + me) * (v.Ta - v.Tf) - v.mg * (v.Tf - 0)) / v.mg;
-    } else {
-      r = v.mc * (v.Tc - v.Tf) / (v.Tf - v.Th) - v.mh;
-    }
-    return isFinite(r) ? r : NaN;
-  }
-  function stats(sec) {
-    var vals = state.rows[sec.id].map(function (r) { return calc(sec, r); }).filter(function (x) { return isFinite(x); });
-    var n = vals.length, mean = NaN, v = NaN, s = NaN;
-    if (n >= 1) mean = vals.reduce(function (a, b) { return a + b; }, 0) / n;
-    if (n >= 2) { v = vals.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / (n - 1); s = Math.sqrt(v); }
-    return { n: n, mean: mean, v: v, s: s };
-  }
-  function fx(x, d) { return isFinite(x) ? x.toFixed(d) : '—'; }
-  function fv(x) { return isFinite(x) ? (x === 0 ? '0' : x.toPrecision(3)) : '—'; }
+/* ---- statistica ---- */
+function stats(a){const n=a.length;if(!n)return null;const m=a.reduce((p,q)=>p+q,0)/n,s2=n>1?a.reduce((p,q)=>p+(q-m)**2,0)/(n-1):null;return{n,m,s2,s:s2==null?null:Math.sqrt(s2)}}
+const groupResults=k=>S.rows[k].map(r=>Object.assign(calc(GR[k].k,r),{x:!!r.x}));
+const used=res=>res.filter(r=>r.v!=null&&!r.x);
+function sumOf(k){const res=used(groupResults(k)),st=stats(res.map(r=>r.v));if(!st)return{k,st:null};
+ const av=f=>res.reduce((a,r)=>a+r[f],0)/res.length,sR=av('sR'),sY=av('sY'),n=st.n;
+ const sS=(n===1?sR:(n<4?Math.max(st.s,sR):st.s)/Math.sqrt(n)),tot=Math.hypot(sS,sY),note=[];
+ if(n>=4&&sR>0){const q=st.s/sR;if(q>2)note.push('dispersione ≫ σ propagata: errore non considerato');else if(q<.5)note.push('dispersione ≪ σ propagata: incertezze forse sovrastimate')}
+ if(n>=4){const y=res.map(r=>r.v),xm=(n-1)/2;let sxy=0,sxx=0,syy=0;y.forEach((v,i)=>{sxy+=(i-xm)*(v-st.m);sxx+=(i-xm)**2;syy+=(v-st.m)**2});
+  const rr=sxy/Math.sqrt(sxx*syy||1);if(Math.abs(rr)>.8)note.push("andamento con l'ordine delle misure (r="+fmt(rr,2)+')')}
+ return{k,st,sR,sY,sS,tot,note:note.join('; ')}}
 
-  function render() {
-    var html = '';
-    SECS.forEach(function (sec) {
-      var fl = FIELDS[sec.kind];
-      html += '<section id="sec-' + sec.id + '"><div class="sh"><h2>' + sec.name + '</h2>' +
-        (sec.kind === 'm' ? '<button data-act="useme">Usa media come Mₑ</button>' : '') +
-        '<button data-act="del" data-sec="' + sec.id + '">− riga</button>' +
-        '<button data-act="add" data-sec="' + sec.id + '">+ riga</button>' +
-        '<button data-act="copy" data-sec="' + sec.id + '">Copia</button></div>' +
-        '<div class="card"><div class="tw"><table class="tin"><thead><tr><th>#</th>';
-      fl.forEach(function (f) { html += '<th>' + f[1] + '</th>'; });
-      html += '<th>' + RESLABEL[sec.kind] + ' (' + sec.unit + ')</th></tr></thead><tbody>';
-      state.rows[sec.id].forEach(function (row, i) {
-        html += '<tr><td class="idx">' + (i + 1) + '</td>';
-        fl.forEach(function (f) {
-          html += '<td><input type="text" inputmode="decimal" autocomplete="off" id="i-' + sec.id + '-' + i + '-' + f[0] + '" data-sec="' + sec.id + '" data-i="' + i + '" data-f="' + f[0] + '" value="' + String(row[f[0]]).replace(/"/g, '') + '"></td>';
-        });
-        html += '<td class="res" data-r="' + sec.id + '-' + i + '"></td></tr>';
-      });
-      html += '</tbody></table></div><div class="stats" data-st="' + sec.id + '">' +
-        '<div><small>n</small><b data-s="n"></b></div><div><small>media</small><b data-s="mean"></b></div>' +
-        '<div><small>varianza s²</small><b data-s="v"></b></div><div><small>dev. std s</small><b data-s="s"></b></div></div></div></section>';
-    });
-    document.getElementById('secs').innerHTML = html;
-    refresh();
-  }
+/* ---- tabelle di misura ---- */
+const empty=(k,r)=>FIELDS[GR[k].k].every(f=>!r[f[0]]);
+const th=f=>f[1]+' ±'+(f[0][0]==='m'?S.set.sm:S.set.sT);
+function group(k){const G=GR[k],F=FIELDS[G.k];
+ const fm=G.k==='spec'?'c = (mₐ+Mₑ)(Tₐ−T_f) / [m₁(T_f−T₁)]':G.k==='lat'?'λ = [(mₐ+Mₑ)(Tₐ−T_f) − m_g(T_f−T_g)] / m_g,  T_g = 0 °C':'Mₑ = m₂(T₂−T_f)/(T_f−T₁) − m₁';
+ const vh=G.k==='spec'?'c ('+uc()+')':G.k==='lat'?'λ ('+ul()+')':'Mₑ (g)';
+ return `<div class="card"><h2>${G.t}</h2><p class="formula">${fm}</p>
+<p class="note">Scrivi i valori come li leggi, senza elaborarli. Una misura sbagliata non si cancella: premi «Scarta», resta barrata e va motivata nella nota.</p>
+<div class="scroll"><table><thead><tr><th>#</th><th>ora</th>${F.map(f=>`<th>${th(f)}</th>`).join('')}<th>${vh}</th><th>± casuale</th><th>± sistem.</th><th style="text-align:left">Controlli</th><th style="text-align:left">Nota</th><th></th></tr></thead><tbody id="tb_${k}"></tbody></table></div>
+<div class="bar"><button class="alt" data-add="1">Aggiungi misura</button><button class="alt" data-dup="1">Duplica ultima</button>${k==='M'?'<button data-useme="1">Usa la media come Mₑ nei calcoli</button>':''}</div></div>`}
+function rowsHTML(k){const F=FIELDS[GR[k].k];
+ return S.rows[k].map((r,i)=>`<tr data-i="${i}" class="${r.x?'disc':''}"><td>${i+1}</td><td><input class="ora" data-f="ora" value="${r.ora??''}" placeholder="hh:mm" aria-label="${GR[k].t}: ora misura ${i+1}"></td>${F.map(f=>`<td><input inputmode="decimal" data-f="${f[0]}" value="${r[f[0]]??''}" aria-label="${GR[k].t}: ${f[1]} misura ${i+1}"></td>`).join('')}<td class="out"></td><td></td><td></td><td class="msg"></td><td><input class="nota" data-f="nota" value="${(r.nota??'').replace(/"/g,'&quot;')}" aria-label="${GR[k].t}: nota misura ${i+1}"></td><td><button class="x"></button></td></tr>`).join('')}
+function updateRows(k){const tb=$('#tb_'+k);if(!tb)return;const res=groupResults(k),u=used(res),n=FIELDS[GR[k].k].length,d=GR[k].k==='spec'?4:2;
+ [...tb.rows].forEach((tr,i)=>{const r=res[i],c=tr.cells,row=S.rows[k][i];
+  c[n+2].textContent=fmt(r.v,d);c[n+3].textContent=fmt(r.sR,d);c[n+4].textContent=fmt(r.sY,d);
+  let h=r.msg.map(([t,s])=>`<div class="${t}">${s}</div>`).join('');
+  let out=false;if(u.length>=4&&r.v!=null&&!r.x){const o=u.filter(q=>q!==r),st=stats(o.map(q=>q.v));out=Math.abs(r.v-st.m)>3*Math.max(st.s,r.sR)}
+  tr.classList.toggle('outl',out);if(out)h+='<div class="w">Possibile valore anomalo: verifica prima di scartare</div>';
+  c[n+5].innerHTML=h;c[n+7].firstChild.textContent=empty(k,row)?'Elimina':row.x?'Ripristina':'Scarta'})}
 
-  function refresh() {
-    var sum = '';
-    SECS.forEach(function (sec) {
-      state.rows[sec.id].forEach(function (row, i) {
-        var c = document.querySelector('[data-r="' + sec.id + '-' + i + '"]');
-        if (c) c.textContent = fx(calc(sec, row), sec.d);
-      });
-      var st = stats(sec);
-      var box = document.querySelector('[data-st="' + sec.id + '"]');
-      if (box) {
-        box.querySelector('[data-s="n"]').textContent = st.n;
-        box.querySelector('[data-s="mean"]').textContent = fx(st.mean, sec.d);
-        box.querySelector('[data-s="v"]').textContent = fv(st.v);
-        box.querySelector('[data-s="s"]').textContent = fx(st.s, sec.d + 1);
-      }
-      var dev = '—', cls = '';
-      if (sec.ref != null && isFinite(st.mean)) {
-        var p = (st.mean - sec.ref) / sec.ref * 100;
-        dev = (p > 0 ? '+' : '') + p.toFixed(1) + '%';
-        var a = Math.abs(p);
-        if (sec.id === 'me') { cls = Math.abs(st.mean - 25) <= 5 ? 'ok' : 'warn'; }
-        else cls = a <= 10 ? 'ok' : (a <= 25 ? 'warn' : 'bad');
-      }
-      sum += '<tr><td>' + sec.name.replace(' (opzionale)', '') + ' <small>' + sec.unit + '</small></td><td class="mono">' + st.n + '</td><td class="mono">' + fx(st.mean, sec.d) +
-        '</td><td class="mono">' + fv(st.v) + '</td><td class="mono">' + fx(st.s, sec.d + 1) + '</td><td class="mono">' + (sec.ref != null ? sec.ref : '—') +
-        '</td><td class="mono ' + cls + '">' + dev + '</td></tr>';
-    });
-    document.getElementById('sum').innerHTML = sum;
-  }
+/* ---- riepilogo ed esportazione ---- */
+function summaryHTML(){const dd=k=>GR[k].k==='spec'?4:2;
+ const rows=Object.keys(GR).map(k=>{const s=sumOf(k),d=dd(k);if(!s.st)return`<tr><td style="text-align:left">${GR[k].t}</td><td>0</td>${'<td>–</td>'.repeat(10)}</tr>`;
+  const ref=P(S.ref[k]),sc=(k!=='M'&&ref!=null)?(s.st.m-ref*K())/s.tot:null,cl=sc==null?'':Math.abs(sc)<2?'g':Math.abs(sc)<3?'w':'e';
+  const rf=k==='M'?'':`<input data-ref="${k}" inputmode="decimal" value="${S.ref[k]??''}" aria-label="Riferimento ${GR[k].t} in cal" style="width:78px">`;
+  return`<tr><td style="text-align:left">${GR[k].t}</td><td>${s.st.n}</td><td class="out">${fmt(s.st.m,d)}</td><td>${fmt(s.st.s2,6)}</td><td>${fmt(s.st.s,d)}</td><td>${fmt(s.sR,d)}</td><td>${fmt(s.sS,d)}</td><td>${fmt(s.sY,d)}</td><td class="out">${fmt(s.tot,d)}</td><td>${rf}</td><td class="${cl}">${sc==null?'–':fmt(sc,1)+' σ'}</td><td class="msg w">${s.note}</td></tr>`}).join('');
+ return`<div class="card"><h2>Riepilogo</h2><div class="scroll"><table><thead><tr><th style="text-align:left">Misura</th><th>n</th><th>media</th><th>s²</th><th>s</th><th>σ propagata</th><th>σ statistica</th><th>σ sistem.</th><th>σ totale</th><th>rif. (cal)</th><th>scost.</th><th style="text-align:left">note</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p class="note">Escluse le misure scartate. s² = Σ(x−x̄)²/(n−1). σ statistica: n = 1 → σ propagata casuale; n = 2–3 → max(s, σ propagata)/√n perché s è poco affidabile; n ≥ 4 → s/√n. σ sistem. = offset termometri e Mₑ (media sulle misure). σ totale = √(σ statistica² + σ sistem.²). Scostamento = (media − rif.)/σ totale: sotto 2 σ è compatibile. Valori in ${uc()} (${ul()} per λ); i riferimenti sono in cal e modificabili: per l'okite usa la scheda tecnica.</p>
+<div class="bar"><button id="cp">Copia tutto per il logbook</button><button class="alt" id="csv">Scarica CSV</button><button class="alt" id="json">Backup JSON</button><label style="border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer;color:var(--ink)">Carica backup<input type="file" id="imp" accept=".json" hidden></label><button class="alt" onclick="print()">Stampa</button><button class="alt" id="rst">Azzera tutto</button></div></div>`}
+function example(k,r){const v=Object.fromEntries(FIELDS[GR[k].k].map(f=>[f[0],raw(r[f[0]])])),M=raw(S.set.Me);
+ return GR[k].k==='spec'?`c = (${v.ma}+${M})(${v.Ta}−${v.Tf})/(${v.m1}(${v.Tf}−${v.T1}))`:GR[k].k==='lat'?`λ = [(${v.ma}+${M})(${v.Ta}−${v.Tf}) − ${v.mg}·${v.Tf}]/${v.mg}`:`Mₑ = ${v.m2}(${v.T2}−${v.Tf})/(${v.Tf}−${v.T1}) − ${v.m1}`}
+function exportText(full){const sep=full?'\t':(S.set.comma?';':','),L=[],b=S.lb,s=S.set;
+ if(full){L.push('LOGBOOK – '+(b.titolo||''),`Data ${b.data||''}  ora ${b.ora||''}  partecipanti: ${b.persone||''}`,'Strumenti: '+(b.strum||''),`Fattori di influenza: T ambiente ${s.Tamb} °C, umidità ${b.umid||''} %, pressione ${b.press||''} hPa`,
+  `Parametri: Mₑ = ${s.Me} ± ${s.sMe} g; σ lettura T = ${s.sT} °C; σ offset = ${s.sOff} °C; σ massa = ${s.sm} g`,'',
+  'Formule: c = c_a(mₐ+Mₑ)(Tₐ−T_f)/[m₁(T_f−T₁)];  λ = [c_a(mₐ+Mₑ)(Tₐ−T_f) − c_a m_g(T_f−T_g)]/m_g;  Mₑ = m₂(T₂−T_f)/(T_f−T₁) − m₁',
+  'Script/foglio di calcolo: questa pagina (index.html); salvare nella cartella analisi/ il CSV esportato','');
+  Object.keys(GR).forEach(k=>{const i=S.rows[k].findIndex((r,j)=>!r.x&&groupResults(k)[j].v!=null);if(i>=0)L.push(`Esempio numerico, ${GR[k].t}, misura ${i+1}: ${example(k,S.rows[k][i])} = ${fmt(groupResults(k)[i].v,4)}`)});L.push('')}
+ Object.keys(GR).forEach(k=>{const F=FIELDS[GR[k].k],res=groupResults(k);L.push(GR[k].t);
+  L.push(['#','ora',...F.map(f=>f[1]),'valore','±casuale','±sistem.','stato','nota'].join(sep));
+  S.rows[k].forEach((r,i)=>L.push([i+1,r.ora||'',...F.map(f=>raw(r[f[0]])),fmt(res[i].v,5),fmt(res[i].sR,5),fmt(res[i].sY,5),r.x?'SCARTATA':'',(r.nota||'').replace(/[\t\n;]/g,' ')].join(sep)));L.push('')});
+ L.push(['Misura','n','media','s2','s','sigma propagata','sigma stat','sigma sist','sigma tot','rif (cal)'].join(sep));
+ Object.keys(GR).forEach(k=>{const r=sumOf(k),t=r.st;L.push([GR[k].t,t?t.n:0,fmt(t?.m,5),fmt(t?.s2,7),fmt(t?.s,5),fmt(r.sR,5),fmt(r.sS,5),fmt(r.sY,5),fmt(r.tot,5),S.ref[k]??''].join(sep))});
+ return L.join('\n')}
+const dl=(n,t,ty)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:ty}));a.download=n;a.click()};
+const stamp=()=>new Date().toISOString().slice(0,16).replace(/[-:T]/g,'').replace(/^(\d{8})/,'$1_');
+function bindSummary(){$('#cp').onclick=()=>navigator.clipboard.writeText(exportText(true));
+ $('#csv').onclick=()=>dl(`${stamp()}_calorimetria_dati.csv`,'\ufeff'+exportText(false),'text/csv');
+ $('#json').onclick=()=>dl(`${stamp()}_calorimetria_backup.json`,JSON.stringify(S),'application/json');
+ $('#imp').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(t=>{try{const o=JSON.parse(t);if(!o.rows)throw 0;localStorage.setItem(KEY,t);location.reload()}catch(x){alert('File non valido')}})};
+ $('#rst').onclick=()=>{if(confirm('Cancellare tutti i dati? Scarica prima un backup JSON.')){localStorage.removeItem(KEY);location.reload()}};
+ document.querySelectorAll('[data-ref]').forEach(i=>i.oninput=()=>{S.ref[i.dataset.ref]=i.value;save()})}
 
-  function dstr(x, d) {
-    if (!isFinite(x)) return '';
-    var t = String(Math.round(x * Math.pow(10, d)) / Math.pow(10, d));
-    return state.dec ? t.replace('.', ',') : t;
-  }
-  function vstr(x) { if (!isFinite(x)) return ''; var t = String(Number(x.toPrecision(4))); return state.dec ? t.replace('.', ',') : t; }
-  function rawstr(v) { var n = num(v); if (!isFinite(n)) return ''; var t = String(n); return state.dec ? t.replace('.', ',') : t; }
+/* ---- logbook ---- */
+const LBF=[['data','Data','date'],['ora','Ora inizio','time'],['persone','Partecipanti','text'],['titolo','Titolo dell\'esperienza','text'],['umid','Umidità relativa (%)','text'],['press','Pressione (hPa)','text']];
+const LBT=[['strum','Strumenti con matricola (termometri 1 e 2, bilancia, thermos A e B, bollitore)',3],['files','File salvati in dati/, foto/, analisi/ (nome esatto – descrizione)',4],['note','Note: anomalie, errori, scarti e relativi motivi',5]];
+function lbHTML(){return`<div class="card"><h2>Intestazione del logbook</h2><p class="note">Compila prima di iniziare e ripeti l'ora prima di ogni nuova serie. La temperatura ambiente è nei parametri in alto. Il logbook vero resta quello su Drive: qui prepari i dati da incollarvi.</p>
+<div class="set">${LBF.map(([k,t,ty])=>`<div><label for="lb_${k}">${t}</label><input id="lb_${k}" type="${ty}" value="${(S.lb[k]??'').replace(/"/g,'&quot;')}"></div>`).join('')}</div>
+${LBT.map(([k,t,r])=>`<label for="lb_${k}" style="margin-top:10px">${t}</label><textarea id="lb_${k}" rows="${r}">${S.lb[k]??''}</textarea>`).join('')}
+<div class="bar"><button class="alt" id="now">Imposta data e ora adesso</button></div></div>
+<div class="card"><h2>Registro delle modifiche</h2><p class="note">Ogni valore cambiato viene registrato con data e ora (vecchio → nuovo). Nulla viene sovrascritto senza traccia.</p>
+<div class="log">${S.log.slice(-40).reverse().join('\n')||'Nessuna modifica registrata.'}</div><div class="bar"><button class="alt" id="lg">Scarica registro completo</button></div></div>`}
 
-  function secText(sec) {
-    var L = [], fl = FIELDS[sec.kind];
-    var strip = function (h) { return h.replace(/<\/?sub>/g, ''); };
-    L.push(sec.name + '\t' + (sec.kind !== 'm' ? 'Me (g)\t' + rawstr(state.me) : ''));
-    L.push(['#'].concat(fl.map(function (f) { return strip(f[1]); })).concat([strip(RESLABEL[sec.kind]) + ' (' + sec.unit + ')']).join('\t'));
-    state.rows[sec.id].forEach(function (row, i) {
-      L.push([String(i + 1)].concat(fl.map(function (f) { return rawstr(row[f[0]]); })).concat([dstr(calc(sec, row), sec.d + 2)]).join('\t'));
-    });
-    var st = stats(sec);
-    L.push('n\t' + st.n);
-    L.push('media\t' + dstr(st.mean, sec.d + 2));
-    L.push('varianza s2 (n-1)\t' + vstr(st.v));
-    L.push('dev. std s\t' + dstr(st.s, sec.d + 3));
-    return L.join('\n');
-  }
-  function allText() {
-    var L = ['Riepilogo\tn\tmedia\tvarianza s2 (n-1)\tdev. std s\tunita'];
-    SECS.forEach(function (sec) {
-      var st = stats(sec);
-      L.push([sec.name.replace(' (opzionale)', ''), st.n, dstr(st.mean, sec.d + 2), vstr(st.v), dstr(st.s, sec.d + 3), sec.unit].join('\t'));
-    });
-    L.push('');
-    return L.join('\n') + '\n' + SECS.map(secText).join('\n\n');
-  }
+/* ---- curva T(t) ---- */
+function lin(p){const n=p.length;if(n<2)return null;const xm=p.reduce((a,q)=>a+q.t,0)/n,ym=p.reduce((a,q)=>a+q.T,0)/n;let sxx=0,sxy=0;p.forEach(q=>{sxx+=(q.t-xm)**2;sxy+=(q.t-xm)*(q.T-ym)});if(!sxx)return null;
+ const b=sxy/sxx,a=ym-b*xm,sg=n>2?Math.sqrt(p.reduce((s,q)=>s+(q.T-a-b*q.t)**2,0)/(n-2)):null;
+ return{a,b,sg,at:t=>a+b*t,se:t=>sg==null?null:sg*Math.sqrt(1/n+(t-xm)**2/sxx)}}
+function tool(){return`<div class="card"><h2>Curva T(t) e temperature estrapolate</h2>
+<p class="note">Incolla coppie «tempo (s)  temperatura (°C)», una per riga, ogni 15–30 s, nel thermos che riceve il blocchetto. Il programma fa una retta prima e una dopo il mescolamento e le estrapola all'istante del mescolamento: è la versione semplificata della correzione di Regnault–Pfaundler e toglie l'effetto delle perdite verso l'ambiente. Inizia il fit dopo che il blocchetto è in equilibrio. Per il ghiaccio T_f è il minimo.</p>
+<div class="two"><div><label for="tx">Dati</label><textarea id="tx" rows="10" placeholder="0 24,8&#10;30 24,8&#10;60 24,9&#10;90 41,2&#10;120 40,9">${S.tt.text}</textarea></div>
+<div><label for="tm">Istante del mescolamento (s)</label><input id="tm" inputmode="decimal" value="${S.tt.tmix}"><label for="t0" style="margin-top:8px">Inizio finestra del fit dopo (s)</label><input id="t0" inputmode="decimal" value="${S.tt.t0}" placeholder="default: mescolamento + 30 s"><div id="tr" style="margin-top:12px"></div></div></div><div id="plot" style="margin-top:10px"></div></div>`}
+function plot(){const pts=S.tt.text.split('\n').map(l=>l.trim().split(/[\s;]+/).map(P)).filter(a=>a.length>=2&&a[0]!=null&&a[1]!=null).map(a=>({t:a[0],T:a[1]}));
+ const tm=P(S.tt.tmix),t0=P(S.tt.t0)??(tm!=null?tm+30:null),R=$('#tr'),Pl=$('#plot');
+ if(pts.length<3){R.innerHTML='<p class="note">Servono almeno 3 punti.</p>';Pl.innerHTML='';return}
+ let h='',fa=null,fb=null;
+ if(tm!=null){fa=lin(pts.filter(p=>p.t<tm));fb=lin(pts.filter(p=>p.t>=t0));
+  if(fa){h+=`<p>Tₐ estrapolata a t = ${fmt(tm,0)} s: <b>${fmt(fa.at(tm),2)} °C</b>${fa.se(tm)==null?'':' ± '+fmt(fa.se(tm),2)} · deriva ${fmt(fa.b*60,2)} °C/min</p>`;if(Math.abs(fa.b*60)>.15)h+='<p class="w">Deriva alta prima del mescolamento: ambiente o termometro instabili.</p>'}
+  else h+='<p class="note">Servono almeno 2 punti prima del mescolamento.</p>';
+  if(fb){h+=`<p>T_f estrapolata: <b style="font-size:1.4rem">${fmt(fb.at(tm),2)} °C</b>${fb.se(tm)==null?'':' ± '+fmt(fb.se(tm),2)} · pendenza ${fmt(fb.b*60,2)} °C/min</p><button class="alt" data-cp="${fmt(fb.at(tm),2)}">Copia T_f</button> `;
+   if(fa)h+=`<button class="alt" data-cp="${fmt(fa.at(tm),2)}">Copia Tₐ</button><p>ΔT = T_f − Tₐ = <b>${fmt(fb.at(tm)-fa.at(tm),2)} °C</b></p>`;
+   if(fb.sg>.15)h+='<p class="w">Residui alti: finestra troppo vicina al mescolamento (blocchetto non in equilibrio) o lettura rumorosa.</p>';
+   if(Math.abs(fb.b*60)>.3)h+="<p class=\"w\">Perdite verso l'ambiente elevate: T_f lontana dall'ambiente?</p>"}
+  else h+='<p class="note">Servono almeno 2 punti dopo l\'inizio finestra.</p>'}
+ R.innerHTML=h;
+ const W=640,H=260,m=36,t=pts.map(p=>p.t),T=pts.map(p=>p.T),x0=Math.min(...t),x1=Math.max(...t),y0=Math.min(...T)-1,y1=Math.max(...T)+1;
+ const X=a=>m+(a-x0)/(x1-x0||1)*(W-m-10),Y=a=>H-m-(a-y0)/(y1-y0||1)*(H-m-10);
+ let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Temperatura in funzione del tempo"><g stroke="var(--line)"><line x1="${m}" y1="${H-m}" x2="${W-10}" y2="${H-m}"/><line x1="${m}" y1="10" x2="${m}" y2="${H-m}"/></g><g fill="var(--mut)" font-size="11"><text x="${m}" y="${H-14}">${fmt(x0,0)} s</text><text x="${W-52}" y="${H-14}">${fmt(x1,0)} s</text><text x="2" y="${H-m}">${fmt(y0,1)}</text><text x="2" y="20">${fmt(y1,1)}</text></g>`;
+ if(tm!=null)s+=`<line x1="${X(tm)}" x2="${X(tm)}" y1="10" y2="${H-m}" stroke="var(--hot)" stroke-dasharray="4 3"/>`;
+ [fa,fb].forEach(f=>{if(f&&tm!=null)s+=`<line x1="${X(x0)}" y1="${Y(f.at(x0))}" x2="${X(x1)}" y2="${Y(f.at(x1))}" stroke="var(--hot)" stroke-width="1.5" opacity=".7"/><circle cx="${X(tm)}" cy="${Y(f.at(tm))}" r="5" fill="var(--hot)"/>`});
+ Pl.innerHTML=s+pts.map(p=>`<circle cx="${X(p.t)}" cy="${Y(p.T)}" r="3.5" fill="var(--cold)"/>`).join('')+'</svg>'}
 
-  function copy(text) {
-    var fb = document.getElementById('fb'), ta = document.getElementById('fbt');
-    var fail = function () { fb.hidden = false; ta.value = text; ta.focus(); ta.select(); };
-    try {
-      navigator.clipboard.writeText(text).then(function () { fb.hidden = true; }, fail);
-    } catch (e) { fail(); }
-  }
+/* ---- guida ---- */
+const GUIDE=[
+['Prima di iniziare',['Scrivi subito data, ora, partecipanti e matricole degli strumenti (scheda Logbook)','Confronta i due termometri nello stesso bagno (acqua e ghiaccio a 0 °C, poi acqua a ~25 e ~50 °C) e annota la differenza: serve per σ offset','Usa lo stesso termometro per Tₐ e T_f: l\'offset si cancella in Tₐ−T_f, la differenza più critica','Controlla la bilancia con una massa nota','Misura Mₑ del thermos ricevente (scheda Mₑ). Con m₁ = m₂ ≈ 100 g, T₁ ≈ 40 °C e T₂ ≈ 5 °C la T_f cade vicino all\'ambiente e la mia stima è σ(Mₑ) ≈ 2 g, contro i ±5 g assunti']],
+['Calore specifico',['ΔT dell\'acqua (T_f − Tₐ) di almeno 3 °C: se è piccolo l\'errore relativo esplode','T₁ tra 70 e 85 °C: più alta aumenta ΔT ma anche perdite e evaporazione durante il trasferimento','Acqua 150–200 g: basta coprire blocchetto e bulbo; pesa il valore reale','Scegli Tₐ ≈ T_amb − ΔT/2, così la temperatura media del sistema è vicina all\'ambiente','Sciacqua il thermos ricevente con acqua a Tₐ: deve partire in equilibrio','Niente tempi fissi: aspetta che T₁ resti stabile entro 0,1 °C per 2 minuti (granito e okite conducono peggio dell\'alluminio)','Trasferimento rapido e sempre uguale, con sgocciolamento a tempo costante','Granito e okite sono porosi: pesali asciutti prima e dopo il bagno e annota la differenza','Alluminio: almeno 5 ripetizioni; confronta s con σ propagata']],
+['Calore latente',['Ghiaccio in equilibrio con acqua a 0 °C (appena uscito dal freezer è sotto zero); sgocciolalo: l\'acqua trascinata non fonde e fa sottostimare λ','Pesare il thermos ricevente prima e dopo dà la massa realmente entrata (evita le perdite per gocciolamento) ma include l\'acqua trascinata','Con mₐ ≈ 200 g, Tₐ ≈ 55 °C, m_g ≈ 70 g si ottiene T_f ≈ 23 °C, vicina all\'ambiente','Registra T(t): T_f è il minimo, oppure l\'estrapolazione della retta successiva','Tieni coperto per ridurre l\'evaporazione']],
+['Sui dati',['Controlla sempre Tₐ < T_f < T₁ (0 < T_f < Tₐ per il ghiaccio)','Confronta s con σ propagata: se s è molto maggiore, c\'è un errore non considerato','Guarda se i risultati dipendono dall\'ordine delle misure (thermos che si scalda, blocchetti non in equilibrio)','Mₑ e offset sono sistematici: riportali separati dall\'errore statistico']],
+['Logbook (da istruzioni del corso)',['Dati scritti al momento della lettura, mai su fogli volanti o note del telefono','Tabelle con unità e incertezze nell\'intestazione','Errori non cancellati: barrati, con il valore corretto e il motivo','Nomi file significativi (es. 03_1430_calorimetria_Al.csv), tutti citati nel logbook','Formula e esempio numerico nel logbook, con il nome del file di calcolo','Registra i fattori di influenza (T ambiente, umidità)','Una sola versione del logbook, quella su Drive']]];
+const guide=()=>GUIDE.map(([t,l])=>`<div class="card"><h2>${t}</h2><ul class="chk">${l.map(x=>`<li><label><input type="checkbox">${x}</label></li>`).join('')}</ul></div>`).join('');
 
-  document.addEventListener('input', function (e) {
-    var t = e.target;
-    if (t.id === 'me-global') { state.me = t.value; save(); refresh(); return; }
-    if (t.dataset && t.dataset.f) {
-      state.rows[t.dataset.sec][Number(t.dataset.i)][t.dataset.f] = t.value;
-      save(); refresh();
-    }
-  });
-  document.getElementById('dec').addEventListener('change', function (e) { state.dec = e.target.checked; save(); });
-  document.getElementById('copy-all').addEventListener('click', function () { copy(allText()); });
-  document.addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-act]');
-    if (!b) return;
-    var sec = SECS.filter(function (s) { return s.id === b.dataset.sec; })[0];
-    var act = b.dataset.act;
-    if (act === 'add') { state.rows[sec.id].push(emptyRow(sec.kind)); save(); render(); }
-    else if (act === 'del') { if (state.rows[sec.id].length > 1) { state.rows[sec.id].pop(); save(); render(); } }
-    else if (act === 'copy') { copy(secText(sec)); }
-    else if (act === 'useme') {
-      var st = stats(SECS[5]);
-      if (isFinite(st.mean)) { state.me = String(Math.round(st.mean * 10) / 10); document.getElementById('me-global').value = state.me; save(); refresh(); }
-    }
-  });
-
-  document.getElementById('me-global').value = state.me;
-  document.getElementById('dec').checked = state.dec !== false;
-  state.dec = state.dec !== false;
-  render();
-})();
+/* ---- regia ---- */
+const TABS=[['LB','Logbook'],['Al','Alluminio'],['Ot','Ottone'],['Ok','Okite'],['Gr','Granito'],['L','Latente'],['M','Mₑ'],['T','Curva T(t)'],['R','Riepilogo'],['G','Guida']];
+function tabs(){const el=$('#tabs');el.innerHTML='';TABS.forEach(([k,t])=>{const b=document.createElement('button');b.setAttribute('role','tab');b.textContent=t;b.setAttribute('aria-selected',S.tab===k);b.onclick=()=>{S.tab=k;save();tabs();show()};el.append(b)})}
+function settings(){const L=[['Me','Mₑ (g)'],['sMe','σ(Mₑ) (g)'],['sT','σ lettura T (°C)'],['sOff','σ offset termometri (°C)'],['sm','σ lettura massa (g)'],['Tamb','T ambiente (°C)']],g=$('#setgrid');
+ g.innerHTML=L.map(([k,t])=>`<div><label for="s_${k}">${t}</label><input id="s_${k}" inputmode="decimal" value="${S.set[k]}"></div>`).join('')+`<div><label for="s_J">Unità</label><select id="s_J"><option value="0">cal</option><option value="1" ${S.set.J?'selected':''}>J</option></select></div><div><label for="s_c">Decimali</label><select id="s_c"><option value="1">virgola</option><option value="0" ${S.set.comma?'':'selected'}>punto</option></select></div>`;
+ g.oninput=g.onchange=e=>{const id=e.target.id.slice(2),v=e.target.value;if(id==='J')S.set.J=v==='1';else if(id==='c')S.set.comma=v==='1';else{const x=P(v);if(x!=null)S.set[id]=x}save();show()}}
+function show(){const v=$('#view'),k=S.tab;v.onclick=v.oninput=null;
+ if(GR[k]){v.innerHTML=group(k);$('#tb_'+k).innerHTML=rowsHTML(k);updateRows(k);
+  v.onclick=e=>{const t=e.target,d=t.dataset,R=S.rows[k];
+   if(d.useme!==undefined){const s=sumOf('M');if(s.st){S.set.Me=+s.st.m.toFixed(1);S.set.sMe=+s.tot.toFixed(1);log(`Mₑ impostata a ${S.set.Me} ± ${S.set.sMe} g dalla scheda Mₑ`);save();settings();show()}return}
+   if(d.add!==undefined)R.push({});else if(d.dup!==undefined)R.push({...R[R.length-1],ora:'',x:false,nota:''});
+   else if(t.classList.contains('x')){const i=+t.closest('tr').dataset.i,r=R[i];if(empty(k,r)){R.splice(i,1);if(!R.length)S.rows[k]=[{}]}else{r.x=!r.x;log(`${GR[k].t} misura ${i+1} ${r.x?'scartata':'ripristinata'}`)}}
+   else return;save();$('#tb_'+k).innerHTML=rowsHTML(k);updateRows(k)};
+  v.oninput=e=>{const tr=e.target.closest('tr'),f=e.target.dataset.f;if(!tr||!f)return;const r=S.rows[k][+tr.dataset.i];r[f]=e.target.value;
+   if(f!=='ora'&&f!=='nota'&&e.target.value&&!r.ora){r.ora=hm();tr.cells[1].firstChild.value=r.ora}save();updateRows(k)}}
+ else if(k==='LB'){v.innerHTML=lbHTML();
+  v.oninput=e=>{if(e.target.id.startsWith('lb_')){S.lb[e.target.id.slice(3)]=e.target.value;save()}};
+  v.onclick=e=>{if(e.target.id==='now'){const d=new Date();S.lb.data=d.toISOString().slice(0,10);S.lb.ora=hm();log('Data e ora del logbook impostate');save();show()}
+   if(e.target.id==='lg')dl(`${stamp()}_registro_modifiche.txt`,S.log.join('\n'),'text/plain')}}
+ else if(k==='R'){v.innerHTML=summaryHTML();bindSummary()}
+ else if(k==='T'){v.innerHTML=tool();plot();
+  v.oninput=e=>{const m={tx:'text',tm:'tmix',t0:'t0'}[e.target.id];if(m){S.tt[m]=e.target.value;save();plot()}};
+  v.onclick=e=>{if(e.target.dataset.cp)navigator.clipboard.writeText(e.target.dataset.cp)}}
+ else v.innerHTML=guide()}
+document.addEventListener('focusin',e=>{if(e.target.matches('input,textarea,select'))e.target.dataset.o=e.target.value});
+document.addEventListener('change',e=>{const t=e.target,o=t.dataset.o;if(o===undefined||o===t.value||t.type==='file'||t.id==='tx')return;
+ const l=t.id&&document.querySelector(`label[for="${t.id}"]`),w=t.getAttribute('aria-label')||(l&&l.textContent)||t.id||'campo';
+ log(`${w}: «${o}» → «${t.value}»`);t.dataset.o=t.value;save()});
+tabs();settings();show();
 </script>
+</body>
+</html>
